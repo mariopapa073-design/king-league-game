@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0a0b10">
+  <title>Kings Draft Italia</title>
+  <style>
+
+:root{
+  --bg:#08090d;--panel:#11131a;--panel2:#181b24;--line:#292e3d;
+  --text:#f8f8fb;--muted:#9ca3b5;--accent:#d7ff3f;--accent2:#8cffdf;
+  --danger:#ff5876;--radius:22px
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:radial-gradient(circle at 20% 0%,#202538 0,#08090d 42%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Arial,sans-serif;min-height:100%}
+body{min-height:100vh;min-height:100dvh}
+button{font:inherit;color:inherit}
+.screen{display:none;min-height:100vh;min-height:100dvh;padding:22px 18px 34px}
+.screen.active{display:block}
+#home{display:none;align-content:center;max-width:700px;margin:auto}
+#home.active{display:grid}
+.hero{padding:22px 4px 28px}
+.eyebrow{font-size:11px;font-weight:900;letter-spacing:.2em;color:var(--accent)}
+.hero h1{font-size:clamp(48px,16vw,86px);line-height:.78;margin:18px 0 24px;letter-spacing:-.07em}
+.hero h1 strong{color:var(--accent)}
+.hero p{color:var(--muted);font-size:17px;line-height:1.45;max-width:520px}
+.panel{background:linear-gradient(145deg,rgba(27,31,42,.96),rgba(14,16,22,.96));border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.panel h2{margin:0 0 16px}
+.difficulty-grid{display:grid;gap:10px}
+.difficulty{border:1px solid var(--line);background:#101219;border-radius:16px;padding:15px;text-align:left;display:flex;justify-content:space-between;align-items:center}
+.difficulty span{color:var(--muted);font-size:13px}
+.difficulty.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#1a1f18}
+.primary,.secondary{width:100%;border:0;border-radius:16px;padding:16px;font-weight:950;letter-spacing:.04em;cursor:pointer}
+.primary{background:var(--accent);color:#0a0b0d;margin-top:16px}
+.secondary{background:#202431;border:1px solid #353b4d}
+.data-note{text-align:center;color:var(--muted);font-size:11px;margin:13px 0 0}
+.topbar{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;max-width:760px;margin:0 auto 18px}
+.topbar small{display:block;color:var(--muted);font-size:10px;letter-spacing:.16em}
+.icon-btn{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-size:30px;line-height:1}
+.skip-pill{background:var(--accent);color:#0b0c0e;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900}
+.pitch-wrap{max-width:760px;margin:auto}
+.pitch{position:relative;aspect-ratio:9/13;max-height:72vh;margin:auto;border-radius:28px;overflow:hidden;border:2px solid rgba(255,255,255,.16);background:
+linear-gradient(90deg,transparent 49.6%,rgba(255,255,255,.18) 50%,transparent 50.4%),
+linear-gradient(0deg,transparent 49.6%,rgba(255,255,255,.18) 50%,transparent 50.4%),
+repeating-linear-gradient(0deg,#153a2d 0,#153a2d 10%,#194331 10%,#194331 20%)}
+.pitch:before{content:"";position:absolute;left:50%;top:50%;width:22%;aspect-ratio:1;border:2px solid rgba(255,255,255,.2);border-radius:50%;transform:translate(-50%,-50%)}
+.slot{position:absolute;width:25%;min-width:74px;max-width:130px;aspect-ratio:.76;transform:translate(-50%,-50%);border:1px dashed rgba(255,255,255,.45);border-radius:17px;background:rgba(5,8,8,.48);backdrop-filter:blur(5px);display:grid;place-items:center;text-align:center;padding:4px;overflow:hidden}
+.slot.empty:active{scale:.97}
+.slot-role{font-size:12px;font-weight:950;color:var(--accent)}
+.slot-plus{font-size:28px;line-height:1}
+.slot.filled{border-style:solid;border-color:rgba(255,255,255,.38);background:linear-gradient(145deg,#e4c85c,#8b6821);color:#111}
+.slot.filled img{position:absolute;width:100%;height:100%;object-fit:cover;opacity:.75}
+.slot.filled .slot-overlay{position:absolute;inset:auto 0 0;background:linear-gradient(transparent,rgba(0,0,0,.92));padding:22px 5px 7px;color:#fff}
+.slot-name{font-size:10px;font-weight:900;line-height:1.05}
+.slot-meta{font-size:9px;color:#dce1ea}
+.draft-info{max-width:760px;margin:14px auto 0;text-align:center}
+.draft-info p{color:var(--muted)}
+.draft-info .secondary{max-width:230px}
+.draw-card{max-width:680px;margin:8vh auto 0}
+.draw-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0}
+.draw-row>div{background:#0d0f15;border:1px solid var(--line);padding:18px;border-radius:17px;min-width:0}
+.draw-row small{color:var(--muted);font-size:10px}
+.draw-row h2{margin:7px 0 0;font-size:clamp(18px,5vw,30px);overflow-wrap:anywhere}
+.skip-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.skip-actions button:disabled{opacity:.35}
+.players-grid{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.player-card{border:0;border-radius:19px;padding:0;overflow:hidden;text-align:left;background:linear-gradient(155deg,#d7bd5a,#72531d);color:#111;box-shadow:0 12px 35px rgba(0,0,0,.25)}
+.player-photo{position:relative;aspect-ratio:1/1;background:linear-gradient(145deg,#303646,#11141c);overflow:hidden}
+.player-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.player-photo .initials{position:absolute;inset:0;display:grid;place-items:center;font-size:42px;font-weight:950;color:rgba(255,255,255,.85)}
+.ovr{position:absolute;top:9px;left:9px;background:var(--accent);border-radius:11px;padding:7px;font-weight:950}
+.player-body{padding:12px}
+.player-name{font-weight:950;font-size:15px;line-height:1.05}
+.player-sub{font-size:11px;opacity:.78;margin-top:5px}
+.player-stats{display:flex;gap:9px;font-size:10px;margin-top:10px;font-weight:800}
+.empty-state{max-width:600px;margin:14vh auto;text-align:center;color:var(--muted)}
+.hidden{display:none!important}
+.complete-card{max-width:760px;margin:3vh auto}
+.complete-card h1{font-size:clamp(35px,10vw,65px);line-height:.9;margin:15px 0 24px}
+.summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px}
+.summary-stats>div{background:#0d0f15;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.summary-stats b{display:block;font-size:22px;color:var(--accent)}
+.summary-stats span{font-size:10px;color:var(--muted)}
+.final-team{display:grid;gap:8px}
+.final-row{display:flex;align-items:center;gap:12px;background:#0d0f15;border:1px solid var(--line);border-radius:14px;padding:9px}
+.final-avatar{width:46px;height:46px;border-radius:12px;object-fit:cover;background:#252a36}
+.final-row b{display:block}.final-row small{color:var(--muted)}
+@media(min-width:720px){
+ .difficulty-grid{grid-template-columns:repeat(3,1fr)}
+ .difficulty{display:block}.difficulty span{display:block;margin-top:8px}
+ .players-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+</style>
+</head>
+<body>
+  <main id="app">
+    <section id="home" class="screen active">
+      <div class="hero">
+        <span class="eyebrow">FAN-MADE WEB GAME</span>
+        <h1>KINGS<br><strong>DRAFT</strong> ITALIA</h1>
+        <p>Costruisci la tua rosa scegliendo giocatori reali per squadra, edizione e ruolo.</p>
+      </div>
+      <div class="panel">
+        <h2>Scegli la difficoltà</h2>
+        <div class="difficulty-grid">
+          <button class="difficulty" data-mode="easy"><b>FACILE</b><span>3 skip totali</span></button>
+          <button class="difficulty selected" data-mode="normal"><b>NORMALE</b><span>2 skip totali</span></button>
+          <button class="difficulty" data-mode="hard"><b>DIFFICILE</b><span>1 skip · OVR nascosti</span></button>
+        </div>
+        <button id="startBtn" class="primary">INIZIA A GIOCARE</button>
+        <p class="data-note">Versione motore 0.1 · Database giocatori in espansione</p>
+      </div>
+    </section>
+
+    <section id="draft" class="screen">
+      <header class="topbar">
+        <button id="backBtn" class="icon-btn" aria-label="Torna indietro">‹</button>
+        <div><small>FORMAZIONE</small><b id="formationName">2-2-2</b></div>
+        <div class="skip-pill">SKIP <b id="skipCount">2</b></div>
+      </header>
+
+      <div class="pitch-wrap">
+        <div id="pitch" class="pitch"></div>
+      </div>
+
+      <div class="draft-info">
+        <p id="draftHint">Tocca uno slot vuoto per iniziare la scelta.</p>
+        <button id="resetBtn" class="secondary">Ricomincia draft</button>
+      </div>
+    </section>
+
+    <section id="draw" class="screen">
+      <header class="topbar">
+        <button id="drawBackBtn" class="icon-btn">‹</button>
+        <div><small>SLOT SELEZIONATO</small><b id="selectedRoleLabel">ATTACCANTE</b></div>
+        <div class="skip-pill">SKIP <b id="drawSkipCount">2</b></div>
+      </header>
+
+      <div class="draw-card panel">
+        <span class="eyebrow">IL TUO SORTEGGIO</span>
+        <div class="draw-row">
+          <div><small>SQUADRA</small><h2 id="drawTeam">STALLIONS</h2></div>
+          <div><small>EDIZIONE</small><h2 id="drawEdition">SPLIT 2</h2></div>
+        </div>
+        <div class="skip-actions">
+          <button id="skipTeamBtn" class="secondary">Cambia squadra</button>
+          <button id="skipEditionBtn" class="secondary">Cambia edizione</button>
+        </div>
+        <button id="showPlayersBtn" class="primary">VEDI I GIOCATORI</button>
+      </div>
+    </section>
+
+    <section id="players" class="screen">
+      <header class="topbar">
+        <button id="playersBackBtn" class="icon-btn">‹</button>
+        <div><small id="playersContext">STALLIONS · SPLIT 2</small><b id="playersRole">ATTACCANTI</b></div>
+        <div class="skip-pill">SKIP <b id="playersSkipCount">2</b></div>
+      </header>
+      <div id="playersGrid" class="players-grid"></div>
+      <div id="emptyPlayers" class="empty-state hidden">
+        <h2>Nessun giocatore disponibile</h2>
+        <p>Il database di questa combinazione non è ancora completo. Torna indietro e usa uno skip.</p>
+      </div>
+    </section>
+
+    <section id="complete" class="screen">
+      <div class="complete-card panel">
+        <span class="eyebrow">DRAFT COMPLETATO</span>
+        <h1>LA TUA ROSA È PRONTA</h1>
+        <div id="summaryStats" class="summary-stats"></div>
+        <div id="finalTeam" class="final-team"></div>
+        <button id="newDraftBtn" class="primary">NUOVO DRAFT</button>
+      </div>
+    </section>
+  </main>
+  <script>
+window.KINGS_DB = {
+  "editions": [
+    "Split 1",
+    "Kings Cup",
+    "Split 2"
+  ],
+  "teams": [
+    "Alpak FC",
+    "BIGBRO",
+    "Boomers",
+    "Circus FC",
+    "D-POWER",
+    "FC Caesar",
+    "Gear 7 FC",
+    "Stallions",
+    "TRM FC",
+    "Underdogs FC",
+    "Zebras FC",
+    "Zeta Como"
+  ],
+  "players": [
+    {
+      "id": "fran-hernandez-s2",
+      "name": "Fran Hernández",
+      "role": "CEN",
+      "team": "FC Caesar",
+      "edition": "Split 2",
+      "ovr": 84,
+      "matches": 13,
+      "goals": 10,
+      "assists": 6,
+      "photo": ""
+    },
+    {
+      "id": "jero-martin-s2",
+      "name": "Jero Martín",
+      "role": "CEN",
+      "team": "Alpak FC",
+      "edition": "Split 2",
+      "ovr": 70,
+      "matches": 11,
+      "goals": 11,
+      "assists": 4,
+      "photo": ""
+    },
+    {
+      "id": "vlad-marin-s2",
+      "name": "Vlad Marin",
+      "role": "DIF",
+      "team": "Stallions",
+      "edition": "Split 2",
+      "ovr": 79,
+      "matches": 14,
+      "goals": 6,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "andrea-benedetti-s2",
+      "name": "Andrea Benedetti",
+      "role": "CEN",
+      "team": "BIGBRO",
+      "edition": "Split 2",
+      "ovr": 77,
+      "matches": 14,
+      "goals": 7,
+      "assists": 3,
+      "photo": ""
+    },
+    {
+      "id": "andrea-tarasco-s2",
+      "name": "Andrea Tarasco",
+      "role": "DIF",
+      "team": "Boomers",
+      "edition": "Split 2",
+      "ovr": 79,
+      "matches": 14,
+      "goals": 1,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "daniel-santoro-s2",
+      "name": "Daniel Santoro",
+      "role": "ATT",
+      "team": "D-POWER",
+      "edition": "Split 2",
+      "ovr": 82,
+      "matches": 11,
+      "goals": 15,
+      "assists": 5,
+      "photo": ""
+    },
+    {
+      "id": "lorenzo-berra-s2",
+      "name": "Lorenzo Berra",
+      "role": "ATT",
+      "team": "Zebras FC",
+      "edition": "Split 2",
+      "ovr": 81,
+      "matches": 12,
+      "goals": 19,
+      "assists": 2,
+      "photo": ""
+    },
+    {
+      "id": "filippo-adamo-s2",
+      "name": "Filippo Adamo",
+      "role": "DIF",
+      "team": "Stallions",
+      "edition": "Split 2",
+      "ovr": 73,
+      "matches": 11,
+      "goals": 1,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "alessio-buono-s2",
+      "name": "Alessio Buono",
+      "role": "POR",
+      "team": "Zeta Como",
+      "edition": "Split 2",
+      "ovr": 78,
+      "matches": 12,
+      "goals": 1,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "mirko-montalbano-s2",
+      "name": "Mirko Montalbano",
+      "role": "POR",
+      "team": "Underdogs FC",
+      "edition": "Split 2",
+      "ovr": 80,
+      "matches": 13,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "kevin-girgenti-s2",
+      "name": "Kevin Girgenti",
+      "role": "POR",
+      "team": "Zeta Como",
+      "edition": "Split 2",
+      "ovr": 77,
+      "matches": 12,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "riccardo-ruggeri-s2",
+      "name": "Riccardo Ruggeri",
+      "role": "POR",
+      "team": "Circus FC",
+      "edition": "Split 2",
+      "ovr": 76,
+      "matches": 12,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "giacomo-pennetta-s2",
+      "name": "Giacomo Pennetta",
+      "role": "POR",
+      "team": "Stallions",
+      "edition": "Split 2",
+      "ovr": 76,
+      "matches": 11,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "luca-meregalli-s2",
+      "name": "Luca Meregalli",
+      "role": "POR",
+      "team": "Zebras FC",
+      "edition": "Split 2",
+      "ovr": 79,
+      "matches": 12,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "federico-lorenzani-s2",
+      "name": "Federico Lorenzani",
+      "role": "POR",
+      "team": "Alpak FC",
+      "edition": "Split 2",
+      "ovr": 79,
+      "matches": 13,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "domenico-rossi-s2",
+      "name": "Domenico Rossi",
+      "role": "POR",
+      "team": "Underdogs FC",
+      "edition": "Split 2",
+      "ovr": 78,
+      "matches": 13,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "melvyn-remy-s2",
+      "name": "Melvyn Remy",
+      "role": "POR",
+      "team": "FC Caesar",
+      "edition": "Split 2",
+      "ovr": 78,
+      "matches": 12,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "alessandro-vagge-s2",
+      "name": "Alessandro Vagge",
+      "role": "POR",
+      "team": "TRM FC",
+      "edition": "Split 2",
+      "ovr": 77,
+      "matches": 12,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "simone-iocolano-kc",
+      "name": "Simone Iocolano",
+      "role": "CEN",
+      "team": "Zeta Como",
+      "edition": "Kings Cup",
+      "ovr": null,
+      "matches": 0,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "youns-el-hilali-kc",
+      "name": "Youns El Hilali",
+      "role": "ATT",
+      "team": "Zeta Como",
+      "edition": "Kings Cup",
+      "ovr": null,
+      "matches": 0,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    },
+    {
+      "id": "alessandro-sigurta-kc",
+      "name": "Alessandro Sigurtà",
+      "role": "CEN",
+      "team": "D-POWER",
+      "edition": "Kings Cup",
+      "ovr": null,
+      "matches": 0,
+      "goals": 0,
+      "assists": 0,
+      "photo": ""
+    }
+  ],
+  "formations": [
+    {
+      "name": "2-2-2",
+      "roles": [
+        "POR",
+        "DIF",
+        "DIF",
+        "CEN",
+        "CEN",
+        "ATT",
+        "ATT"
+      ]
+    },
+    {
+      "name": "3-1-2",
+      "roles": [
+        "POR",
+        "DIF",
+        "DIF",
+        "DIF",
+        "CEN",
+        "ATT",
+        "ATT"
+      ]
+    },
+    {
+      "name": "2-1-3",
+      "roles": [
+        "POR",
+        "DIF",
+        "DIF",
+        "CEN",
+        "ATT",
+        "ATT",
+        "ATT"
+      ]
+    }
+  ]
+};
+
+</script>
+  <script>
+
+(() => {
+  const DB = window.KINGS_DB;
+  const $ = (s) => document.querySelector(s);
+  const screens = [...document.querySelectorAll('.screen')];
+  const roleNames = {POR:'PORTIERE',DIF:'DIFENSORE',CEN:'CENTROCAMPISTA',ATT:'ATTACCANTE'};
+  const plurals = {POR:'PORTIERI',DIF:'DIFENSORI',CEN:'CENTROCAMPISTI',ATT:'ATTACCANTI'};
+  const modeSkips = {easy:3,normal:2,hard:1};
+  let mode = 'normal', skips = 2, formation = null, selectedSlot = null;
+  let currentTeam = '', currentEdition = '', squad = [];
+
+  function show(id){ screens.forEach(s=>s.classList.toggle('active',s.id===id)); window.scrollTo(0,0); }
+  function rand(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function initials(name){ return name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase(); }
+  function safePhoto(p){
+    return p.photo ? `<img src="${p.photo}" alt="${p.name}" onerror="this.style.display='none'">` :
+      `<span class="initials">${initials(p.name)}</span>`;
+  }
+  function updateSkips(){
+    ['#skipCount','#drawSkipCount','#playersSkipCount'].forEach(id=>$(id).textContent=skips);
+    $('#skipTeamBtn').disabled=skips<=0; $('#skipEditionBtn').disabled=skips<=0;
+  }
+  function slotPositions(roles){
+    const groups={ATT:[],CEN:[],DIF:[],POR:[]};
+    roles.forEach((r,i)=>groups[r].push(i));
+    const y={ATT:15,CEN:42,DIF:69,POR:89};
+    const out={};
+    Object.entries(groups).forEach(([r,ids])=>{
+      ids.forEach((id,k)=> out[id]={x:(100/(ids.length+1))*(k+1),y:y[r]});
+    });
+    return out;
+  }
+  function renderPitch(){
+    const pitch=$('#pitch'); pitch.innerHTML='';
+    const pos=slotPositions(formation.roles);
+    formation.roles.forEach((role,i)=>{
+      const player=squad[i];
+      const b=document.createElement('button');
+      b.className='slot '+(player?'filled':'empty');
+      b.style.left=pos[i].x+'%'; b.style.top=pos[i].y+'%';
+      if(player){
+        b.innerHTML=`${safePhoto(player)}<div class="slot-overlay"><div class="slot-name">${player.name}</div><div class="slot-meta">${role} · ${mode==='hard'?'OVR ?':(player.ovr??'—')}</div></div>`;
+      }else{
+        b.innerHTML=`<div><div class="slot-plus">+</div><div class="slot-role">${role}</div></div>`;
+        b.addEventListener('click',()=>openDraw(i));
+      }
+      pitch.appendChild(b);
+    });
+  }
+  function startGame(){
+    skips=modeSkips[mode]; formation=rand(DB.formations); squad=Array(formation.roles.length).fill(null);
+    $('#formationName').textContent=formation.name; updateSkips(); renderPitch(); show('draft');
+  }
+  function validCombosForRole(role){
+    const pairs=DB.players.filter(p=>p.role===role).map(p=>`${p.team}|${p.edition}`);
+    return [...new Set(pairs)];
+  }
+  function randomizePair(role){
+    const combos=validCombosForRole(role);
+    if(combos.length){
+      const [t,e]=rand(combos).split('|'); currentTeam=t; currentEdition=e;
+    }else{ currentTeam=rand(DB.teams); currentEdition=rand(DB.editions); }
+    renderDraw();
+  }
+  function openDraw(index){
+    selectedSlot=index;
+    const role=formation.roles[index];
+    $('#selectedRoleLabel').textContent=roleNames[role];
+    randomizePair(role); show('draw');
+  }
+  function renderDraw(){
+    $('#drawTeam').textContent=currentTeam; $('#drawEdition').textContent=currentEdition; updateSkips();
+  }
+  function spendSkip(kind){
+    if(skips<=0) return;
+    skips--;
+    const role=formation.roles[selectedSlot];
+    const candidates = DB.players.filter(p=>p.role===role && (kind==='team'?p.edition===currentEdition:p.team===currentTeam));
+    const values=[...new Set(candidates.map(p=>kind==='team'?p.team:p.edition))].filter(v=>v!==(kind==='team'?currentTeam:currentEdition));
+    if(values.length){
+      if(kind==='team') currentTeam=rand(values); else currentEdition=rand(values);
+    }else{
+      const combos=validCombosForRole(role).map(x=>x.split('|')).filter(([t,e])=>kind==='team'?e===currentEdition:t===currentTeam);
+      if(combos.length){ const [t,e]=rand(combos); currentTeam=t; currentEdition=e; }
+    }
+    renderDraw();
+  }
+  function openPlayers(){
+    const role=formation.roles[selectedSlot];
+    $('#playersContext').textContent=`${currentTeam} · ${currentEdition}`;
+    $('#playersRole').textContent=plurals[role];
+    const list=DB.players.filter(p=>p.role===role&&p.team===currentTeam&&p.edition===currentEdition);
+    const grid=$('#playersGrid'); grid.innerHTML='';
+    $('#emptyPlayers').classList.toggle('hidden',list.length>0);
+    list.forEach(p=>{
+      const b=document.createElement('button'); b.className='player-card';
+      b.innerHTML=`<div class="player-photo">${safePhoto(p)}<div class="ovr">${mode==='hard'?'?':(p.ovr??'—')}</div></div>
+        <div class="player-body"><div class="player-name">${p.name}</div><div class="player-sub">${p.team} · ${p.edition}</div>
+        <div class="player-stats"><span>${p.matches} PG</span><span>${p.goals} G</span><span>${p.assists} A</span></div></div>`;
+      b.addEventListener('click',()=>selectPlayer(p));
+      grid.appendChild(b);
+    });
+    updateSkips(); show('players');
+  }
+  function selectPlayer(p){
+    squad[selectedSlot]=p; renderPitch();
+    if(squad.every(Boolean)) finish(); else show('draft');
+  }
+  function finish(){
+    const known=squad.filter(p=>Number.isFinite(p.ovr));
+    const avg=known.length?Math.round(known.reduce((a,p)=>a+p.ovr,0)/known.length):0;
+    const goals=squad.reduce((a,p)=>a+(p.goals||0),0);
+    const assists=squad.reduce((a,p)=>a+(p.assists||0),0);
+    $('#summaryStats').innerHTML=`<div><b>${avg||'—'}</b><span>OVR MEDIO</span></div><div><b>${goals}</b><span>GOL TOTALI</span></div><div><b>${assists}</b><span>ASSIST TOTALI</span></div>`;
+    $('#finalTeam').innerHTML=squad.map((p,i)=>`<div class="final-row"><div class="final-avatar">${safePhoto(p)}</div><div><b>${p.name}</b><small>${formation.roles[i]} · ${p.team} · ${p.edition}</small></div></div>`).join('');
+    show('complete');
+  }
+
+  document.querySelectorAll('.difficulty').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('.difficulty').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); mode=b.dataset.mode;
+  }));
+  $('#startBtn').addEventListener('click',startGame);
+  $('#backBtn').addEventListener('click',()=>show('home'));
+  $('#drawBackBtn').addEventListener('click',()=>show('draft'));
+  $('#playersBackBtn').addEventListener('click',()=>show('draw'));
+  $('#skipTeamBtn').addEventListener('click',()=>spendSkip('team'));
+  $('#skipEditionBtn').addEventListener('click',()=>spendSkip('edition'));
+  $('#showPlayersBtn').addEventListener('click',openPlayers);
+  $('#resetBtn').addEventListener('click',startGame);
+  $('#newDraftBtn').addEventListener('click',()=>show('home'));
+})();
+
+</script>
+</body>
+</html>
