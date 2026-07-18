@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kings League Italia — Fantasy Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0C12; --surface:#12141C; --surface2:#1B1E29; --line:#2A2E3D;
+    --gold:#F4B400; --violet:#7C3AED; --magenta:#FF3D71; --green:#33D69F;
+    --text:#F2F1EC; --dim:#9AA0B4;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+  h1,h2,h3,.display{font-family:'Bebas Neue',sans-serif;letter-spacing:.02em;}
+  .mono{font-family:'Space Mono',monospace;}
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 900px 500px at 15% -10%, rgba(124,58,237,.22), transparent 60%),
+               radial-gradient(ellipse 700px 500px at 110% 10%, rgba(244,180,0,.10), transparent 60%);
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:40px 5% 100px;position:relative;z-index:1;}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:44px;flex-wrap:wrap;gap:14px;}
+  .logo{font-size:1.4rem;letter-spacing:.06em;}
+  .logo .crown{color:var(--gold);}
+  .stage-pill{font-family:'Space Mono';font-size:.72rem;color:var(--dim);border:1px solid var(--line);padding:6px 14px;text-transform:uppercase;letter-spacing:.08em;}
+
+  .screen{display:none;}
+  .screen.active{display:block;animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .hero-title{font-size:clamp(2.6rem,7vw,4.6rem);line-height:.95;margin-bottom:18px;}
+  .hero-title span{color:var(--gold);}
+  .lead{color:var(--dim);max-width:600px;line-height:1.65;font-size:1.03rem;margin-bottom:16px;}
+  .rules-mini{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 36px;}
+  .rules-mini span{font-family:'Space Mono';font-size:.72rem;border:1px solid var(--line);padding:7px 13px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;}
+
+  .btn{
+    -webkit-appearance:none;appearance:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    padding:15px 34px;border-radius:2px;font-weight:700;font-size:.85rem;
+    text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border:none;
+    transition:transform .15s, box-shadow .15s;font-family:'Inter';
+  }
+  .btn-primary{background:var(--gold);color:#0A0C12;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(244,180,0,.3);}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+
+  /* ROLL */
+  .roll-box{
+    background:var(--surface);border:1px solid var(--line);padding:50px;text-align:center;margin-bottom:30px;
+  }
+  .roll-slot{font-family:'Bebas Neue';font-size:clamp(2.2rem,6vw,3.4rem);color:var(--dim);min-height:1.2em;letter-spacing:.03em;}
+  .roll-slot.locked{color:var(--gold);}
+  .roll-sub{font-family:'Space Mono';font-size:.85rem;color:var(--violet);margin-top:10px;min-height:1.2em;}
+  .roll-pres{color:var(--dim);font-size:.85rem;margin-top:14px;}
+  .tier-badge{
+    display:inline-block;margin-top:18px;padding:6px 16px;font-family:'Space Mono';font-size:.72rem;
+    text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--magenta);color:var(--magenta);
+  }
+
+  /* ROSTER */
+  .roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin:28px 0;}
+  .player-card{background:var(--surface);border:1px solid var(--line);padding:20px;position:relative;}
+  .player-card .role{font-family:'Space Mono';font-size:.68rem;color:var(--violet);text-transform:uppercase;letter-spacing:.1em;}
+  .player-card h4{font-size:1.25rem;margin:8px 0 10px;}
+  .ovr-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .ovr-num{font-family:'Bebas Neue';font-size:1.8rem;color:var(--gold);}
+  .ovr-label{font-family:'Space Mono';font-size:.65rem;color:var(--dim);text-transform:uppercase;}
+  .stat-line{font-family:'Space Mono';font-size:.72rem;color:var(--dim);margin-top:4px;}
+  .mvp-tag{position:absolute;top:14px;right:14px;font-family:'Space Mono';font-size:.62rem;color:#0A0C12;background:var(--gold);padding:3px 8px;letter-spacing:.06em;}
+  .forma-bar{height:5px;background:var(--surface2);margin-top:8px;border-radius:2px;overflow:hidden;}
+  .forma-fill{height:100%;background:var(--green);}
+
+  /* FORMATION */
+  .formation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:26px 0;}
+  .formation-card{
+    background:var(--surface);border:1px solid var(--line);padding:24px;cursor:pointer;transition:.2s;
+  }
+  .formation-card:hover{border-color:var(--violet);}
+  .formation-card.selected{border-color:var(--gold);background:var(--surface2);}
+  .formation-card h4{font-size:1.5rem;color:var(--gold);margin-bottom:6px;}
+  .formation-card p{color:var(--dim);font-size:.82rem;line-height:1.5;}
+
+  /* MATCH LOG / TABLE */
+  .panel{background:var(--surface);border:1px solid var(--line);padding:30px;margin-bottom:24px;}
+  .panel h3{font-size:1.6rem;margin-bottom:16px;color:var(--gold);}
+  .match-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;border-bottom:1px solid var(--line);font-family:'Space Mono';font-size:.85rem;
+  }
+  .match-row:last-child{border-bottom:none;}
+  .match-row .tag{font-size:.65rem;padding:3px 9px;text-transform:uppercase;letter-spacing:.05em;}
+  .tag.win{background:rgba(51,214,159,.15);color:var(--green);}
+  .tag.loss{background:rgba(255,61,113,.15);color:var(--magenta);}
+  .score{color:var(--text);font-weight:700;}
+
+  .progress-track{height:8px;background:var(--surface2);margin-bottom:30px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--gold));transition:width .4s ease;}
+
+  .stat-boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:24px;}
+  .stat-box{background:var(--surface2);border:1px solid var(--line);padding:18px;text-align:center;}
+  .stat-box .big{font-family:'Bebas Neue';font-size:2.2rem;color:var(--gold);}
+  .stat-box .lbl{font-family:'Space Mono';font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+
+  .bracket-stage{margin-bottom:22px;}
+  .bracket-stage h4{font-family:'Space Mono';font-size:.75rem;color:var(--violet);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
+
+  .final-banner{
+    text-align:center;padding:50px 20px;background:linear-gradient(180deg, rgba(124,58,237,.15), transparent);
+    border:1px solid var(--line);margin-bottom:30px;
+  }
+  .final-banner .trophy{font-size:3rem;}
+  .final-banner h2{font-size:clamp(2rem,6vw,3.2rem);margin:10px 0;}
+  .final-banner p{color:var(--dim);}
+
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:24px;color:var(--dim);font-size:.78rem;line-height:1.6;}
+</style>
+</head>
+<body>
+<noscript><div style="background:#FF3D71;color:white;padding:16px;text-align:center;font-family:Arial,sans-serif">JavaScript è disattivato o bloccato. Apri questo file tramite un sito web o un’app che esegua JavaScript.</div></noscript>
+<div class="wrap">
+  <header>
+    <div class="logo"><span class="crown">♛</span> KL ITALIA — FANTASY</div>
+    <div class="stage-pill mono" id="stagePill">HOME</div>
+  </header>
+
+  <!-- SCREEN 0: HOME -->
+  <div class="screen active" id="screen-home">
+    <h1 class="hero-title">COSTRUISCI LA<br>TUA <span>SQUADRA</span>.<br>CACCIA L'11-0.</h1>
+    <p class="lead">Rola squadra ed edizione tra tutte quelle della Kings League Italia (Split 1, Kings Cup, Split 2), ricevi una rosa di 7 giocatori generata casualmente, scegli la formazione e prova a vincere tutte le 11 giornate della regular season. Poi si passa a Play-In, Quarti, Semifinale e Finale — come nel torneo vero.</p>
+    <div class="rules-mini">
+      <span>11 giornate</span>
+      <span>12 squadre</span>
+      <span>Vittoria = 3 pt · shootout 2/1</span>
+      <span>1° bye in semifinale</span>
+      <span>7°–10° Play-In</span>
+      <span>Niente pareggi</span>
+    </div>
+    <button class="btn btn-primary" data-action="goRoll">Inizia a giocare</button>
+  </div>
+
+  <!-- SCREEN 1: ROLL -->
+  <div class="screen" id="screen-roll">
+    <h2 style="font-size:2.2rem;margin-bottom:8px;">Rola la tua scelta</h2>
+    <p class="lead">Ogni roll assegna una squadra reale della Kings League Italia, un'edizione e una tier di partenza per la tua rosa.</p>
+    <div class="roll-box">
+      <div class="roll-slot" id="rollTeam">???</div>
+      <div class="roll-sub" id="rollEdition">seleziona un'edizione...</div>
+      <div class="roll-pres" id="rollPres"></div>
+      <div id="rollTierWrap"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="rollBtn" data-action="rollTeam">🎲 Rola</button>
+      <button class="btn btn-ghost" id="confirmRollBtn" data-action="goRoster" disabled>Genera la rosa →</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: ROSTER -->
+  <div class="screen" id="screen-roster">
+    <h2 style="font-size:2.2rem;margin-bottom:4px;" id="rosterTeamName">La tua rosa</h2>
+    <p class="lead" id="rosterSub">7 giocatori generati per la tua squadra.</p>
+    <div class="roster-grid" id="rosterGrid"></div>
+    <button class="btn btn-primary" data-action="goFormation">Scegli la formazione →</button>
+  </div>
+
+  <!-- SCREEN 3: FORMATION -->
+  <div class="screen" id="screen-formation">
+    <h2 style="font-size:2.2rem;margin-bottom:8px;">Scegli la formazione</h2>
+    <p class="lead">Portiere fisso + 6 giocatori di movimento. La formazione influenza leggermente le tue partite.</p>
+    <div class="formation-grid" id="formationGrid"></div>
+    <button class="btn btn-primary" id="startSeasonBtn" data-action="goSeason" disabled>Inizia la stagione →</button>
+  </div>
+
+  <!-- SCREEN 4: SEASON -->
+  <div class="screen" id="screen-season">
+    <h2 style="font-size:2.2rem;margin-bottom:4px;">Regular Season</h2>
+    <p class="lead">11 giornate. Obiettivo: 11-0.</p>
+    <div class="progress-track"><div class="progress-fill" id="seasonProgress" style="width:0%"></div></div>
+    <div class="stat-boxes">
+      <div class="stat-box"><div class="big" id="statW">0</div><div class="lbl">Vittorie</div></div>
+      <div class="stat-box"><div class="big" id="statL">0</div><div class="lbl">Sconfitte</div></div>
+      <div class="stat-box"><div class="big" id="statPts">0</div><div class="lbl">Punti</div></div>
+      <div class="stat-box"><div class="big" id="statGiornata">0/11</div><div class="lbl">Giornata</div></div>
+    </div>
+    <div class="panel">
+      <h3>Calendario</h3>
+      <div id="matchLog"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="nextMatchBtn" data-action="playNextMatch">Gioca prossima giornata</button>
+      <button class="btn btn-ghost" id="simAllBtn" data-action="simAllRemaining">Simula tutta la stagione</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: STANDINGS -->
+  <div class="screen" id="screen-standings">
+    <h2 style="font-size:2.2rem;margin-bottom:8px;">Classifica finale</h2>
+    <div class="panel">
+      <h3>Regular Season — 12 squadre</h3>
+      <div id="standingsTable"></div>
+    </div>
+    <button class="btn btn-primary" data-action="goPlayoffOrEnd">Vedi il tuo destino nei playoff →</button>
+  </div>
+
+  <!-- SCREEN 6: PLAYOFFS -->
+  <div class="screen" id="screen-playoffs">
+    <h2 style="font-size:2.2rem;margin-bottom:8px;">Playoff</h2>
+    <div id="playoffBody"></div>
+    <button class="btn btn-primary" id="playoffNextBtn" data-action="advancePlayoff">Gioca il prossimo turno</button>
+  </div>
+
+  <!-- SCREEN 7: END -->
+  <div class="screen" id="screen-end">
+    <div class="final-banner">
+      <div class="trophy" id="endTrophy">🏆</div>
+      <h2 id="endTitle">Fine corsa</h2>
+      <p id="endSub"></p>
+    </div>
+    <div class="panel">
+      <h3>Riepilogo stagione</h3>
+      <div id="endSummary"></div>
+    </div>
+    <button class="btn btn-primary" data-action="resetGame">Rigioca da capo</button>
+  </div>
+
+  <footer>
+    Gioco fan-made non ufficiale. Squadre ed edizioni sono quelle reali della Kings League Italia; giocatori, overall, gol e statistiche sono generati proceduralmente per il gioco e non rappresentano dati reali. Format regular season (11 giornate) e struttura playoff (bye alla 1ª, Play-In 7°–10°, Quarti, Semifinale, Finale) ispirati al regolamento ufficiale.
+  </footer>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const TEAMS = [
+  {id:'stallions', name:'Stallions', pres:'Blur'},
+  {id:'circus', name:'Circus', pres:'GrenBaud'},
+  {id:'trm', name:'TRM', pres:'Marza'},
+  {id:'boomers', name:'Boomers', pres:'Fedez'},
+  {id:'alpak', name:'AlpaK', pres:'Frenezy'},
+  {id:'punchers', name:'Punchers', pres:'PirlasV'},
+  {id:'zeta', name:'FC Zeta', pres:null},
+  {id:'gear7', name:'Gear7', pres:null},
+  {id:'zebras', name:'Zebras', pres:null},
+  {id:'underdogs', name:'Underdogs', pres:null},
+  {id:'blacklotus', name:'Black Lotus', pres:null},
+  {id:'caesar', name:'Caesar', pres:null},
+];
+const EDITIONS = [
+  {id:'split1', name:'Split 1 · 2024/25'},
+  {id:'cup', name:'Kings Cup · Autunno 2025'},
+  {id:'split2', name:'Split 2 · 2025/26'},
+];
+const TIERS = [
+  {id:'bronzo', name:'Bronzo', min:58, max:71, weight:40},
+  {id:'argento', name:'Argento', min:68, max:80, weight:35},
+  {id:'oro', name:'Oro', min:76, max:88, weight:20},
+  {id:'leggendario', name:'Leggendario', min:85, max:96, weight:5},
+];
+const FORMATIONS = [
+  {id:'2-2-2', name:'2-2-2', desc:'Equilibrata. Nessun bonus, nessun malus.', winMod:0, varMod:0},
+  {id:'3-1-2', name:'3-1-2', desc:'Difensiva. Meno gol subiti, meno gol fatti.', winMod:2, varMod:-3},
+  {id:'1-3-2', name:'1-3-2', desc:'Centrocampo folto. Partite più solide e regolari.', winMod:1, varMod:-5},
+  {id:'2-1-3', name:'2-1-3', desc:'Offensiva. Più imprevedibile, più gol in entrambe le porte.', winMod:-1, varMod:5},
+];
+const FIRST_NAMES = ['Marco','Luca','Davide','Matteo','Alessio','Simone','Andrea','Riccardo','Federico','Nicola','Gabriele','Lorenzo','Stefano','Fabio','Giulio','Emanuele','Christian','Daniele','Mirko','Samuele','Tommaso','Leonardo','Filippo','Edoardo'];
+const LAST_NAMES = ['Ferrari','Colombo','Ricci','Marino','Greco','Bruno','Gallo','Conti','De Luca','Costa','Giordano','Mancini','Rizzo','Lombardi','Moretti','Barbieri','Fontana','Santoro','Mariani','Rinaldi','Villa','Sartori','Ferraro','Longo'];
+
+/* ---------------- STATE ---------------- */
+let state = {
+  team:null, edition:null, tier:null,
+  roster:[], formation:null,
+  schedule:[], results:[], giornata:0,
+  points:0, wins:0, losses:0, gf:0, ga:0,
+  standings:[], myRank:null,
+  playoffStage:null, playoffLog:[], eliminated:false, champion:false
+};
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function setPill(txt){document.getElementById('stagePill').textContent=txt;}
+
+function goRoll(){ show('screen-roll'); setPill('ROLL'); }
+
+/* ---------------- ROLL ---------------- */
+function weightedTier(){
+  const total = TIERS.reduce((a,t)=>a+t.weight,0);
+  let r = Math.random()*total;
+  for(const t of TIERS){ if(r<t.weight) return t; r-=t.weight; }
+  return TIERS[0];
+}
+function rollTeam(){
+  document.getElementById('rollBtn').disabled = true;
+  const teamEl = document.getElementById('rollTeam');
+  const edEl = document.getElementById('rollEdition');
+  let ticks = 0;
+  const iv = setInterval(()=>{
+    const t = TEAMS[Math.floor(Math.random()*TEAMS.length)];
+    const e = EDITIONS[Math.floor(Math.random()*EDITIONS.length)];
+    teamEl.textContent = t.name;
+    edEl.textContent = e.name;
+    ticks++;
+    if(ticks>16){
+      clearInterval(iv);
+      const finalTeam = TEAMS[Math.floor(Math.random()*TEAMS.length)];
+      const finalEd = EDITIONS[Math.floor(Math.random()*EDITIONS.length)];
+      const tier = weightedTier();
+      state.team = finalTeam; state.edition = finalEd; state.tier = tier;
+      teamEl.textContent = finalTeam.name;
+      teamEl.classList.add('locked');
+      edEl.textContent = finalEd.name;
+      document.getElementById('rollPres').textContent = finalTeam.pres ? ('Presidente: '+finalTeam.pres) : '';
+      document.getElementById('rollTierWrap').innerHTML = '<div class="tier-badge">Tier rosa: '+tier.name+'</div>';
+      document.getElementById('rollBtn').disabled = false;
+      document.getElementById('rollBtn').textContent = '🎲 Rola di nuovo';
+      document.getElementById('confirmRollBtn').disabled = false;
+    }
+  }, 70);
+}
+
+/* ---------------- ROSTER ---------------- */
+function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function randName(){return FIRST_NAMES[randInt(0,FIRST_NAMES.length-1)]+' '+LAST_NAMES[randInt(0,LAST_NAMES.length-1)];}
+
+function genPlayer(role, tier){
+  const ovr = randInt(tier.min, tier.max);
+  const goals = role==='ATT' ? randInt(4,22) : role==='CEN' ? randInt(1,12) : role==='DIF' ? randInt(0,6) : randInt(0,1);
+  const mvp = ovr>=85 && Math.random()<0.28;
+  const forma = randInt(35,100);
+  return {name:randName(), role, ovr, goals, mvp, forma};
+}
+
+function goRoster(){
+  const roles = ['POR','DIF','DIF','CEN','CEN','ATT','ATT'];
+  state.roster = roles.map(r=>genPlayer(r, state.tier));
+  document.getElementById('rosterTeamName').textContent = state.team.name + ' — ' + state.edition.name;
+  document.getElementById('rosterSub').textContent = 'Rosa tier ' + state.tier.name + '. 1 portiere + 6 di movimento.';
+  const grid = document.getElementById('rosterGrid');
+  grid.innerHTML = state.roster.map(p=>`
+    <div class="player-card">
+      ${p.mvp?'<div class="mvp-tag">MVP</div>':''}
+      <div class="role">${p.role}</div>
+      <h4>${p.name}</h4>
+      <div class="ovr-row"><div class="ovr-num">${p.ovr}</div><div class="ovr-label">overall</div></div>
+      <div class="stat-line">Gol stagione: ${p.goals}</div>
+      <div class="forma-bar"><div class="forma-fill" style="width:${p.forma}%"></div></div>
+      <div class="stat-line">Forma: ${p.forma}%</div>
+    </div>
+  `).join('');
+  show('screen-roster'); setPill('ROSA');
+}
+
+/* ---------------- FORMATION ---------------- */
+function goFormation(){
+  const grid = document.getElementById('formationGrid');
+  grid.innerHTML = FORMATIONS.map(f=>`
+    <div class="formation-card" id="f-${f.id}" data-formation-id="${f.id}">
+      <h4>${f.name}</h4>
+      <p>${f.desc}</p>
+    </div>
+  `).join('');
+  show('screen-formation'); setPill('FORMAZIONE');
+}
+function pickFormation(id){
+  state.formation = FORMATIONS.find(f=>f.id===id);
+  document.querySelectorAll('.formation-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('f-'+id).classList.add('selected');
+  document.getElementById('startSeasonBtn').disabled = false;
+}
+
+/* ---------------- SEASON SIM ---------------- */
+function teamOverall(){
+  const avg = state.roster.reduce((a,p)=>a+p.ovr,0)/state.roster.length;
+  const formaAvg = state.roster.reduce((a,p)=>a+p.forma,0)/state.roster.length;
+  return avg + (formaAvg-70)/12 + state.formation.winMod;
+}
+
+function goSeason(){
+  // build schedule: your team vs each of the other 11 teams once (11 giornate)
+  const opponents = TEAMS.filter(t=>t.id!==state.team.id);
+  state.schedule = opponents.map(o=>({
+    opp:o, oppOvr: randInt(64,91)
+  }));
+  state.giornata = 0; state.results=[]; state.points=0; state.wins=0; state.losses=0; state.gf=0; state.ga=0;
+  document.getElementById('matchLog').innerHTML = '';
+  updateSeasonStats();
+  show('screen-season'); setPill('STAGIONE 0/11');
+}
+
+function simulateMatch(myOvr, oppOvr){
+  const variance = state.formation.varMod;
+  const diff = (myOvr - oppOvr) + randInt(-9,9) + (variance? randInt(-Math.abs(variance),Math.abs(variance)):0);
+  let outcome, myGoals, oppGoals, pts;
+  const shootoutZone = Math.abs(diff) < 3;
+  if(shootoutZone){
+    const iWin = Math.random() < (0.5 + diff/40);
+    myGoals = randInt(3,7); oppGoals = myGoals; // tied in regulation, decided on shootout
+    if(iWin){ outcome='win-shootout'; pts=2; } else { outcome='loss-shootout'; pts=1; }
+  } else if(diff>0){
+    myGoals = randInt(5,11); oppGoals = randInt(1, Math.max(1,myGoals-2));
+    outcome='win'; pts=3;
+  } else {
+    oppGoals = randInt(5,11); myGoals = randInt(1, Math.max(1,oppGoals-2));
+    outcome='loss'; pts=0;
+  }
+  return {outcome, myGoals, oppGoals, pts};
+}
+
+function playNextMatch(){
+  if(state.giornata>=11) return;
+  const fixture = state.schedule[state.giornata];
+  const myOvr = teamOverall();
+  const res = simulateMatch(myOvr, fixture.oppOvr);
+  state.giornata++;
+  state.results.push({opp:fixture.opp, ...res});
+  state.points += res.pts;
+  state.gf += res.myGoals; state.ga += res.oppGoals;
+  if(res.outcome.startsWith('win')) state.wins++; else state.losses++;
+  logMatch(fixture.opp, res, state.giornata);
+  updateSeasonStats();
+  if(state.giornata>=11){
+    document.getElementById('nextMatchBtn').disabled = true;
+    document.getElementById('simAllBtn').disabled = true;
+    setTimeout(goStandings, 500);
+  }
+}
+function simAllRemaining(){
+  const iv = setInterval(()=>{
+    if(state.giornata>=11){ clearInterval(iv); return; }
+    playNextMatch();
+  }, 90);
+}
+
+function logMatch(opp, res, giornata){
+  const win = res.outcome.startsWith('win');
+  const div = document.createElement('div');
+  div.className='match-row';
+  div.innerHTML = `
+    <span>G${giornata} · vs ${opp.name}</span>
+    <span class="score">${res.myGoals}-${res.oppGoals}</span>
+    <span class="tag ${win?'win':'loss'}">${res.outcome.replace('-',' ').toUpperCase()}</span>
+  `;
+  document.getElementById('matchLog').prepend(div);
+}
+function updateSeasonStats(){
+  document.getElementById('statW').textContent = state.wins;
+  document.getElementById('statL').textContent = state.losses;
+  document.getElementById('statPts').textContent = state.points;
+  document.getElementById('statGiornata').textContent = state.giornata+'/11';
+  document.getElementById('seasonProgress').style.width = (state.giornata/11*100)+'%';
+  setPill('STAGIONE '+state.giornata+'/11');
+}
+
+/* ---------------- STANDINGS ---------------- */
+function goStandings(){
+  const others = TEAMS.filter(t=>t.id!==state.team.id).map(t=>{
+    const w = randInt(3,10);
+    const l = 11-w;
+    const pts = w*3 - randInt(0,w); // rough approximation with occasional shootout points
+    return {name:t.name, pts:Math.max(pts, w), w, l, mine:false};
+  });
+  const mine = {name: state.team.name+' (tu)', pts: state.points, w: state.wins, l: state.losses, mine:true};
+  const all = [...others, mine].sort((a,b)=>b.pts-a.pts);
+  state.standings = all;
+  state.myRank = all.findIndex(t=>t.mine)+1;
+
+  document.getElementById('standingsTable').innerHTML = all.map((t,i)=>`
+    <div class="match-row" style="${t.mine?'color:var(--gold);font-weight:700;':''}">
+      <span>${i+1}. ${t.name}</span>
+      <span class="mono">${t.w}V-${t.l}S</span>
+      <span class="score">${t.pts} pt</span>
+    </div>
+  `).join('');
+  show('screen-standings'); setPill('CLASSIFICA');
+}
+
+/* ---------------- PLAYOFFS ---------------- */
+function goPlayoffOrEnd(){
+  const body = document.getElementById('playoffBody');
+  const rank = state.myRank;
+  state.playoffLog = [];
+  if(rank>=11){
+    state.eliminated = true;
+    body.innerHTML = `<div class="panel"><h3>Stagione finita in regular season</h3>
+      <p style="color:var(--dim)">Ti sei classificato ${rank}° su 12: fuori dai playoff (fuori chi chiude 11°-12°).</p></div>`;
+    document.getElementById('playoffNextBtn').style.display='none';
+    show('screen-playoffs'); setPill('PLAYOFF');
+    setTimeout(showEnd, 400);
+    return;
+  }
+  if(rank===1){
+    state.playoffStage = 'semifinale';
+    body.innerHTML = `<div class="panel"><h3>1° posto: bye diretto in semifinale</h3>
+      <p style="color:var(--dim)">Hai chiuso la regular season al comando: salti Play-In e Quarti.</p></div>`;
+  } else if(rank>=2 && rank<=6){
+    state.playoffStage = 'quarti';
+    body.innerHTML = `<div class="panel"><h3>${rank}° posto: accesso diretto ai Quarti di finale</h3>
+      <p style="color:var(--dim)">Niente Play-In per te: sei tra le prime sei.</p></div>`;
+  } else {
+    state.playoffStage = 'playin';
+    body.innerHTML = `<div class="panel"><h3>${rank}° posto: si parte dal Play-In</h3>
+      <p style="color:var(--dim)">Posizioni 7°-10°: spareggio per l'ultimo posto ai Quarti di finale.</p></div>`;
+  }
+  document.getElementById('playoffNextBtn').style.display='inline-block';
+  document.getElementById('playoffNextBtn').textContent = 'Gioca: ' + state.playoffStage.toUpperCase();
+  show('screen-playoffs'); setPill('PLAYOFF');
+}
+
+function playoffOpponentOvr(stage){
+  const base = {playin:70, quarti:76, semifinale:82, finale:87};
+  return randInt(base[stage]-8, base[stage]+8);
+}
+
+function advancePlayoff(){
+  const myOvr = teamOverall();
+  const stage = state.playoffStage;
+  const oppOvr = playoffOpponentOvr(stage);
+  const res = simulateMatch(myOvr, oppOvr);
+  const win = res.outcome.startsWith('win');
+  state.playoffLog.push({stage, res, win});
+  renderPlayoffLog();
+
+  if(!win){
+    state.eliminated = true;
+    document.getElementById('playoffNextBtn').style.display='none';
+    setTimeout(showEnd, 500);
+    return;
+  }
+  // advance stage
+  if(stage==='playin'){ state.playoffStage='quarti'; }
+  else if(stage==='quarti'){ state.playoffStage='semifinale'; }
+  else if(stage==='semifinale'){ state.playoffStage='finale'; }
+  else if(stage==='finale'){ state.champion=true; document.getElementById('playoffNextBtn').style.display='none'; setTimeout(showEnd,500); return; }
+
+  document.getElementById('playoffNextBtn').textContent = 'Gioca: ' + state.playoffStage.toUpperCase();
+}
+
+function renderPlayoffLog(){
+  const body = document.getElementById('playoffBody');
+  body.innerHTML = state.playoffLog.map(l=>`
+    <div class="bracket-stage">
+      <h4>${l.stage}</h4>
+      <div class="match-row">
+        <span>Risultato</span>
+        <span class="score">${l.res.myGoals}-${l.res.oppGoals}</span>
+        <span class="tag ${l.win?'win':'loss'}">${l.win?'AVANTI':'ELIMINATO'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ---------------- END ---------------- */
+function showEnd(){
+  const perfect = state.wins===11 && state.losses===0;
+  const trophy = document.getElementById('endTrophy');
+  const title = document.getElementById('endTitle');
+  const sub = document.getElementById('endSub');
+
+  if(state.champion){
+    trophy.textContent='🏆';
+    title.textContent='CAMPIONE DELLA KINGS LEAGUE ITALIA';
+    sub.textContent='Hai vinto Play-In (se necessario), Quarti, Semifinale e Finale.';
+  } else if(state.eliminated && state.playoffStage){
+    trophy.textContent='⚔️';
+    title.textContent='Eliminato ai '+state.playoffStage.toUpperCase();
+    sub.textContent='La corsa ai playoff finisce qui.';
+  } else {
+    trophy.textContent='📋';
+    title.textContent='Fuori dai playoff';
+    sub.textContent='Regular season chiusa fuori dalla zona playoff.';
+  }
+
+  const bestPlayer = [...state.roster].sort((a,b)=>b.ovr-a.ovr)[0];
+  const topScorer = [...state.roster].sort((a,b)=>b.goals-a.goals)[0];
+
+  document.getElementById('endSummary').innerHTML = `
+    <div class="match-row"><span>Squadra</span><span>${state.team.name} — ${state.edition.name}</span></div>
+    <div class="match-row"><span>Formazione</span><span>${state.formation.name}</span></div>
+    <div class="match-row"><span>Record regular season</span><span>${state.wins}V - ${state.losses}S</span></div>
+    <div class="match-row"><span>Obiettivo 11-0</span><span>${perfect?'✅ RAGGIUNTO':'❌ mancato'}</span></div>
+    <div class="match-row"><span>Posizione finale regular season</span><span>${state.myRank}° su 12</span></div>
+    <div class="match-row"><span>Giocatore di punta (overall)</span><span>${bestPlayer.name} — ${bestPlayer.ovr} OVR</span></div>
+    <div class="match-row"><span>Capocannoniere squadra</span><span>${topScorer.name} — ${topScorer.goals} gol</span></div>
+  `;
+  show('screen-end'); setPill('FINE');
+}
+
+/* ---------------- RESET ---------------- */
+function resetGame(){
+  state = {team:null, edition:null, tier:null, roster:[], formation:null, schedule:[], results:[], giornata:0,
+    points:0, wins:0, losses:0, gf:0, ga:0, standings:[], myRank:null,
+    playoffStage:null, playoffLog:[], eliminated:false, champion:false};
+  document.getElementById('rollTeam').textContent='???';
+  document.getElementById('rollTeam').classList.remove('locked');
+  document.getElementById('rollEdition').textContent="seleziona un'edizione...";
+  document.getElementById('rollPres').textContent='';
+  document.getElementById('rollTierWrap').innerHTML='';
+  document.getElementById('rollBtn').textContent='🎲 Rola';
+  document.getElementById('rollBtn').disabled=false;
+  document.getElementById('confirmRollBtn').disabled=true;
+  document.getElementById('nextMatchBtn').disabled=false;
+  document.getElementById('simAllBtn').disabled=false;
+  show('screen-home'); setPill('HOME');
+}
+
+/* ---------------- SAFARI / IOS EVENT BINDINGS ---------------- */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('[data-action]').forEach(function(el){
+    var name = el.getAttribute('data-action');
+    el.addEventListener('click', function(ev){
+      ev.preventDefault();
+      if (typeof window[name] === 'function') window[name]();
+    }, {passive:false});
+  });
+  document.addEventListener('click', function(ev){
+    var card = ev.target.closest && ev.target.closest('[data-formation-id]');
+    if(card){
+      ev.preventDefault();
+      pickFormation(card.getAttribute('data-formation-id'));
+    }
+  }, {passive:false});
+});
+
+</script>
+</body>
+</html>
