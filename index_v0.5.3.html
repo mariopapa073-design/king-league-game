@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090f">
+<title>Kings Draft Italia v0.5.3</title>
+<style>
+:root{--bg:#07090f;--panel:#111622;--panel2:#171e2d;--line:#30394d;--text:#f8fafc;--muted:#9aa6bb;--accent:#d9ff3f;--danger:#ff5d73;--blue:#63a4ff;--radius:22px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 20% 0,#26314a 0,#07090f 45%);color:var(--text);font-family:Inter,system-ui,-apple-system,Arial,sans-serif}
+button,select{font:inherit}.screen{display:none;min-height:100vh;min-height:100dvh;padding:18px 14px 34px}.screen.active{display:block}
+.home.active{display:grid;align-content:center;max-width:760px;margin:auto}.eyebrow{font-size:11px;font-weight:950;letter-spacing:.18em;color:var(--accent)}
+h1{font-size:clamp(42px,13vw,78px);line-height:.84;letter-spacing:-.06em;margin:14px 0 18px}.muted{color:var(--muted)}
+.panel{background:linear-gradient(145deg,rgba(29,36,53,.98),rgba(13,17,26,.98));border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 22px 65px rgba(0,0,0,.36)}
+.choices{display:grid;gap:9px}.choice{border:1px solid var(--line);background:#10141e;color:var(--text);border-radius:15px;padding:14px;text-align:left}.choice b{display:block}.choice span{font-size:12px;color:var(--muted)}
+.choice.selected{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:#1b2118}
+.primary,.secondary,.danger{border:0;border-radius:15px;padding:15px;font-weight:950;letter-spacing:.035em;width:100%;cursor:pointer}
+.primary{background:var(--accent);color:#090a0c;margin-top:14px}.secondary{background:#202737;border:1px solid #39445b}.danger{background:var(--danger);color:#fff}
+.primary:disabled,.secondary:disabled{opacity:.35}.step-title{margin:22px 0 10px;font-size:13px}.formation-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.topbar{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:11px;max-width:820px;margin:0 auto 16px}.topbar small{display:block;font-size:10px;color:var(--muted);letter-spacing:.14em}.icon{width:42px;height:42px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:#fff;font-size:28px}
+.pill{background:var(--accent);color:#0b0c0e;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:950}
+.pitch{position:relative;aspect-ratio:9/13;max-height:70vh;max-width:520px;margin:auto;border-radius:28px;overflow:hidden;border:2px solid rgba(255,255,255,.17);background:linear-gradient(90deg,transparent 49.6%,rgba(255,255,255,.17) 50%,transparent 50.4%),linear-gradient(0deg,transparent 49.6%,rgba(255,255,255,.17) 50%,transparent 50.4%),repeating-linear-gradient(0deg,#153b2d 0,#153b2d 10%,#194633 10%,#194633 20%)}
+.pitch:before{content:"";position:absolute;left:50%;top:50%;width:24%;aspect-ratio:1;border:2px solid rgba(255,255,255,.19);border-radius:50%;transform:translate(-50%,-50%)}
+.slot{position:absolute;transform:translate(-50%,-50%);width:25%;min-width:73px;max-width:125px;aspect-ratio:.76;border:1px dashed rgba(255,255,255,.48);border-radius:16px;background:rgba(5,7,8,.58);display:grid;place-items:center;text-align:center;overflow:hidden;color:#fff}
+.slot .plus{font-size:27px}.slot .role{font-size:11px;font-weight:950;color:var(--accent)}.slot.filled{border-style:solid;background:linear-gradient(145deg,#dfca66,#80601f);color:#111}
+.slot .initials{font-size:25px;font-weight:950}.slot .overlay{position:absolute;left:0;right:0;bottom:0;padding:19px 4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.94));color:white}.slot .name{font-size:9px;font-weight:950}.slot .meta{font-size:8px;color:#d7dce7}
+.center{max-width:780px;margin:14px auto;text-align:center}.draw{max-width:680px;margin:7vh auto 0}.draw-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0}.draw-box{background:#0d1119;border:1px solid var(--line);border-radius:16px;padding:17px}.draw-box small{color:var(--muted);font-size:10px}.draw-box h2{font-size:clamp(18px,5vw,29px);overflow-wrap:anywhere;margin:7px 0 0}
+.skip-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.hint{font-size:12px;color:var(--muted);min-height:34px;margin-top:10px}
+.players{max-width:1000px;margin:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.card{padding:0;border:0;border-radius:18px;overflow:hidden;text-align:left;background:linear-gradient(150deg,#dfc966,#74561d);color:#111}.photo{aspect-ratio:1;background:linear-gradient(145deg,#313849,#12151d);display:grid;place-items:center;position:relative;color:white}.photo .initials{font-size:38px;font-weight:950}.ovr{position:absolute;left:8px;top:8px;background:var(--accent);color:#111;padding:6px;border-radius:10px;font-weight:950}.card-body{padding:11px}.card-name{font-weight:950;line-height:1}.card-sub{font-size:10px;opacity:.75;margin-top:5px}.stats{display:flex;gap:8px;font-size:10px;font-weight:850;margin-top:9px}
+.summary{max-width:820px;margin:2vh auto}.summary h1{font-size:clamp(34px,9vw,60px)}.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#0d1119;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}.stat b{font-size:21px;color:var(--accent);display:block}.stat span{font-size:9px;color:var(--muted)}
+.team-list{display:grid;gap:7px;margin-top:14px}.team-row{display:flex;justify-content:space-between;align-items:center;background:#0d1119;border:1px solid var(--line);border-radius:13px;padding:10px}.team-row small{color:var(--muted)}
+.settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}.select{width:100%;padding:13px;border-radius:13px;background:#0d1119;color:#fff;border:1px solid var(--line)}
+.match-head{text-align:center;padding:14px}.score{font-size:clamp(42px,12vw,72px);font-weight:1000;letter-spacing:-.05em}.versus{color:var(--muted);font-size:12px}.event-feed{height:42vh;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:8px 0}.event{background:#0d1119;border:1px solid var(--line);border-radius:14px;padding:12px;animation:pop .2s ease}.event strong{color:var(--accent)}@keyframes pop{from{opacity:0;transform:translateY(8px)}}
+.special{border-color:var(--accent);background:#1b2118}.goal{border-color:#63a4ff;background:#111d31}.danger-event{border-color:var(--danger);background:#26131a}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.table-wrap{overflow:auto}.standings{width:100%;border-collapse:collapse;font-size:13px}.standings th,.standings td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:center}.standings th:nth-child(2),.standings td:nth-child(2){text-align:left}.standings tr.user{background:#1b2118;color:var(--accent);font-weight:950}
+.result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.result-box{background:#0d1119;border:1px solid var(--line);border-radius:14px;padding:13px;text-align:center}.result-box b{display:block;font-size:22px;color:var(--accent)}
+.bracket{display:grid;gap:12px}.match-row{background:#0d1119;border:1px solid var(--line);border-radius:14px;padding:12px}.winner{color:var(--accent);font-weight:950}.champion{text-align:center;padding:22px;border:1px solid var(--accent);border-radius:18px;background:#1b2118;margin-top:15px}
+.hidden{display:none!important}
+@media(min-width:720px){.choices{grid-template-columns:repeat(3,1fr)}.players{grid-template-columns:repeat(4,minmax(0,1fr))}.result-grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<section id="home" class="screen home active">
+ <div><span class="eyebrow">VERSIONE 0.5.3 · SEASON UPDATE</span><h1>KINGS<br>DRAFT ITALIA</h1><p class="muted">Crea la tua squadra e affronta una Regular Season completa.</p></div>
+ <div class="panel">
+  <div class="step-title">1. DIFFICOLTÀ</div>
+  <div class="choices" id="difficultyChoices">
+   <button class="choice" data-mode="easy"><b>FACILE</b><span>3 skip totali</span></button>
+   <button class="choice selected" data-mode="normal"><b>NORMALE</b><span>2 skip totali</span></button>
+   <button class="choice" data-mode="hard"><b>DIFFICILE</b><span>1 skip · OVR nascosto</span></button>
+  </div>
+  <div class="step-title">2. FORMAZIONE</div>
+  <div class="formation-grid" id="formationChoices">
+   <button class="choice selected" data-formation="2-2-2"><b>2-2-2</b></button>
+   <button class="choice" data-formation="3-1-2"><b>3-1-2</b></button>
+   <button class="choice" data-formation="2-1-3"><b>2-1-3</b></button>
+  </div>
+  <button id="start" class="primary">INIZIA IL DRAFT</button>
+ </div>
+</section>
+
+<section id="draft" class="screen">
+ <header class="topbar"><button class="icon" id="homeBack">‹</button><div><small>FORMAZIONE</small><b id="formationLabel"></b></div><div class="pill">SKIP <b class="skipCount"></b></div></header>
+ <div id="pitch" class="pitch"></div>
+ <div class="center"><p class="muted">Tocca uno slot vuoto per scegliere il giocatore.</p><button id="restart" class="secondary" style="max-width:230px">Ricomincia</button></div>
+</section>
+
+<section id="draw" class="screen">
+ <header class="topbar"><button class="icon" id="drawBack">‹</button><div><small>SLOT SELEZIONATO</small><b id="roleLabel"></b></div><div class="pill">SKIP <b class="skipCount"></b></div></header>
+ <div class="panel draw"><span class="eyebrow">IL TUO SORTEGGIO</span>
+  <div class="draw-row"><div class="draw-box"><small>SQUADRA</small><h2 id="teamLabel"></h2></div><div class="draw-box"><small>EDIZIONE</small><h2 id="editionLabel"></h2></div></div>
+  <div class="skip-grid"><button id="skipTeam" class="secondary">Cambia squadra</button><button id="skipEdition" class="secondary">Cambia edizione</button></div>
+  <div id="skipHint" class="hint"></div><button id="showPlayers" class="primary">VEDI I GIOCATORI</button>
+ </div>
+</section>
+
+<section id="playersScreen" class="screen">
+ <header class="topbar"><button class="icon" id="playersBack">‹</button><div><small id="contextLabel"></small><b id="playersRole"></b></div><div class="pill">SKIP <b class="skipCount"></b></div></header>
+ <div id="players" class="players"></div>
+</section>
+
+<section id="complete" class="screen">
+ <div class="panel summary"><span class="eyebrow">DRAFT COMPLETATO</span><h1>LA TUA ROSA È PRONTA</h1><div id="summaryStats" class="stat-grid"></div><div id="teamList" class="team-list"></div>
+ <div class="settings"><label><small>VELOCITÀ</small><select id="speed" class="select"><option value="slow">Lenta</option><option value="normal" selected>Normale</option><option value="fast">Veloce</option></select></label><label><small>NOME SQUADRA</small><input id="userTeamName" class="select" value="La tua squadra"></label></div>
+ <button id="startSeason" class="primary">INIZIA LA REGULAR SEASON</button></div>
+</section>
+
+<section id="season" class="screen">
+ <div class="panel summary"><span class="eyebrow">REGULAR SEASON · SPLIT 2</span><h1 id="matchdayTitle">GIORNATA 1</h1>
+ <div id="nextMatchCard" class="match-head"></div>
+ <button id="playMatch" class="primary">GIOCA LA PARTITA</button>
+ <div class="table-wrap" style="margin-top:18px"><table class="standings"><thead><tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>GF</th><th>GS</th><th>DR</th><th>PT</th></tr></thead><tbody id="standingsBody"></tbody></table></div>
+ </div>
+</section>
+
+<section id="live" class="screen">
+ <div class="panel summary">
+  <span class="eyebrow" id="liveDay"></span>
+  <div class="match-head"><div id="liveTeams"></div><div class="score" id="liveScore">0 - 0</div><div class="versus" id="liveClock">0'</div></div>
+  <div id="eventFeed" class="event-feed"></div>
+  <div class="controls"><button id="togglePause" class="secondary">PAUSA</button><button id="skipLive" class="secondary">SALTA SIMULAZIONE</button></div>
+ </div>
+</section>
+
+<section id="result" class="screen">
+ <div class="panel summary"><span class="eyebrow">FINE PARTITA</span><h1 id="finalScore"></h1><div id="resultStats" class="result-grid"></div><div id="scorers" class="team-list"></div><button id="continueSeason" class="primary">CONTINUA</button></div>
+</section>
+
+<section id="playoffs" class="screen">
+ <div class="panel summary"><span class="eyebrow">PLAYOFF</span><h1 id="playoffTitle">FASE FINALE</h1><div id="playoffContent" class="bracket"></div><button id="playoffNext" class="primary">CONTINUA</button></div>
+</section>
+</main>
+
+<script>
+const DB={
+ formations:{
+  "2-2-2":["POR","DIF","DIF","CEN","CEN","ATT","ATT"],
+  "3-1-2":["POR","DIF","DIF","DIF","CEN","ATT","ATT"],
+  "2-1-3":["POR","DIF","DIF","CEN","ATT","ATT","ATT"]
+ },
+ players:[
+ {id:"buono-s2",name:"Alessio Buono",role:"POR",team:"Zeta Como",edition:"Split 2",ovr:78},
+ {id:"montalbano-s2",name:"Mirko Montalbano",role:"POR",team:"Underdogs FC",edition:"Split 2",ovr:80},
+ {id:"pennetta-s2",name:"Giacomo Pennetta",role:"POR",team:"Stallions",edition:"Split 2",ovr:76},
+ {id:"lorenzani-s2",name:"Federico Lorenzani",role:"POR",team:"Alpak FC",edition:"Split 2",ovr:79},
+ {id:"tarasco-s2",name:"Andrea Tarasco",role:"DIF",team:"Boomers",edition:"Split 2",ovr:79},
+ {id:"adamo-kc",name:"Filippo Adamo",role:"DIF",team:"Stallions",edition:"Kings Cup",ovr:73},
+ {id:"marin-kc",name:"Vlad Marin",role:"DIF",team:"Alpak FC",edition:"Kings Cup",ovr:79},
+ {id:"ruggeri-s1",name:"Riccardo Ruggeri",role:"DIF",team:"Circus FC",edition:"Split 1",ovr:76},
+ {id:"campolunghi-s2",name:"Campolunghi",role:"DIF",team:"TRM FC",edition:"Split 2",ovr:81},
+ {id:"geraci-s2",name:"Gabriele Geraci",role:"CEN",team:"Zeta Como",edition:"Split 2",ovr:81},
+ {id:"benedetti-s2",name:"Andrea Benedetti",role:"CEN",team:"BIGBRO",edition:"Split 2",ovr:77},
+ {id:"hernandez-s2",name:"Fran Hernández",role:"CEN",team:"FC Caesar",edition:"Split 2",ovr:84},
+ {id:"sigurta-kc",name:"Alessandro Sigurtà",role:"CEN",team:"D-POWER",edition:"Kings Cup",ovr:83},
+ {id:"delmonte-s1",name:"Diego Del Monte",role:"CEN",team:"Gear 7 FC",edition:"Split 1",ovr:72},
+ {id:"perrotti-s2",name:"Perrotti",role:"CEN",team:"Stallions",edition:"Split 2",ovr:82},
+ {id:"santoro-s1",name:"Daniel Santoro",role:"ATT",team:"Boomers",edition:"Split 1",ovr:82},
+ {id:"berra-s2",name:"Lorenzo Berra",role:"ATT",team:"Zebras FC",edition:"Split 2",ovr:81},
+ {id:"loiodice-kc",name:"Nicola Loiodice",role:"ATT",team:"FC Caesar",edition:"Kings Cup",ovr:84},
+ {id:"elhilali-kc",name:"Youns El Hilali",role:"ATT",team:"FC Zeta",edition:"Kings Cup",ovr:82},
+ {id:"martin-s2",name:"Jero Martín",role:"ATT",team:"Alpak FC",edition:"Split 2",ovr:80},
+ {id:"marza-s2",name:"Marza",role:"ATT",team:"Circus FC",edition:"Split 2",ovr:78}
+ ],
+ opponents:[
+ {name:"Zeta Como",strength:80},{name:"Stallions",strength:82},{name:"Underdogs FC",strength:83},
+ {name:"Alpak FC",strength:81},{name:"Gear 7 FC",strength:76},{name:"Boomers",strength:79},
+ {name:"FC Caesar",strength:82},{name:"TRM FC",strength:78},{name:"Zebras FC",strength:78},
+ {name:"Circus FC",strength:79},{name:"BIGBRO",strength:77}
+ ]
+};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const state={difficulty:"normal",formation:"2-2-2",skips:2,slots:[],selectedSlot:null,draw:null,used:new Set(),speed:"normal",teamName:"La tua squadra",matchday:0,standings:[],schedule:[],live:null,playoffStage:0};
+function show(id){$$(".screen").forEach(x=>x.classList.remove("active"));$("#"+id).classList.add("active");scrollTo(0,0)}
+function initials(n){return n.split(" ").map(x=>x[0]).join("").slice(0,3).toUpperCase()}
+function random(a){return a[Math.floor(Math.random()*a.length)]}
+function validCombos(role){return DB.players.filter(p=>p.role===role&&!state.used.has(p.id))}
+function startDraft(){
+ state.skips={easy:3,normal:2,hard:1}[state.difficulty];state.slots=DB.formations[state.formation].map(role=>({role,player:null}));state.used=new Set();renderPitch();show("draft")
+}
+function renderPitch(){
+ $("#formationLabel").textContent=state.formation;$$(".skipCount").forEach(x=>x.textContent=state.skips);
+ const positions=[[50,90],[29,69],[71,69],[28,44],[72,44],[30,19],[70,19]];
+ if(state.formation==="3-1-2")positions.splice(1,6,[20,68],[50,72],[80,68],[50,43],[31,18],[69,18]);
+ if(state.formation==="2-1-3")positions.splice(1,6,[30,69],[70,69],[50,45],[18,18],[50,16],[82,18]);
+ $("#pitch").innerHTML=state.slots.map((s,i)=>{const p=s.player;return `<button class="slot ${p?"filled":""}" data-i="${i}" style="left:${positions[i][0]}%;top:${positions[i][1]}%">${p?`<div class="initials">${initials(p.name)}</div><div class="overlay"><div class="name">${p.name}</div><div class="meta">${p.role} · ${state.difficulty==="hard"?"OVR ?":p.ovr}</div></div>`:`<div><div class="plus">+</div><div class="role">${s.role}</div></div>`}</button>`}).join("");
+ $$("#pitch .slot").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(!state.slots[i].player)openDraw(i)})
+}
+function openDraw(i){state.selectedSlot=i;rerollAll();$("#roleLabel").textContent=state.slots[i].role;show("draw")}
+function rerollAll(){
+ const role=state.slots[state.selectedSlot].role, pool=validCombos(role);
+ if(!pool.length){alert("Non ci sono più giocatori disponibili per questo ruolo.");return}
+ const p=random(pool);state.draw={team:p.team,edition:p.edition};renderDraw()
+}
+function renderDraw(){
+ $("#teamLabel").textContent=state.draw.team;$("#editionLabel").textContent=state.draw.edition;
+ $("#skipHint").textContent=state.skips?`Hai ${state.skips} skip condivisi.`:"Skip terminati.";
+ $("#skipTeam").disabled=$("#skipEdition").disabled=state.skips<=0;$$(".skipCount").forEach(x=>x.textContent=state.skips)
+}
+function changeDraw(kind){
+ if(state.skips<=0)return;state.skips--;
+ const role=state.slots[state.selectedSlot].role;
+ let pool=validCombos(role).filter(p=>kind==="team"?p.team!==state.draw.team:p.edition!==state.draw.edition);
+ if(!pool.length)pool=validCombos(role);
+ const p=random(pool);state.draw[kind]=p[kind];ensureValidDraw();renderDraw()
+}
+function ensureValidDraw(){
+ const role=state.slots[state.selectedSlot].role;
+ let pool=validCombos(role).filter(p=>p.team===state.draw.team&&p.edition===state.draw.edition);
+ if(pool.length)return;
+ const p=random(validCombos(role));state.draw={team:p.team,edition:p.edition}
+}
+function showPlayers(){
+ ensureValidDraw();const role=state.slots[state.selectedSlot].role;
+ const pool=validCombos(role).filter(p=>p.team===state.draw.team&&p.edition===state.draw.edition);
+ $("#contextLabel").textContent=`${state.draw.team} · ${state.draw.edition}`;$("#playersRole").textContent=role;
+ $("#players").innerHTML=pool.map(p=>`<button class="card" data-id="${p.id}"><div class="photo"><span class="initials">${initials(p.name)}</span>${state.difficulty==="hard"?"":`<span class="ovr">${p.ovr}</span>`}</div><div class="card-body"><div class="card-name">${p.name}</div><div class="card-sub">${p.role} · ${p.team} · ${p.edition}</div><div class="stats"><span>OVR ${state.difficulty==="hard"?"?":p.ovr}</span></div></div></button>`).join("");
+ $$("#players .card").forEach(b=>b.onclick=()=>pickPlayer(b.dataset.id));show("playersScreen")
+}
+function pickPlayer(id){
+ const p=DB.players.find(x=>x.id===id);state.slots[state.selectedSlot].player=p;state.used.add(id);renderPitch();
+ if(state.slots.every(x=>x.player))renderSummary();else show("draft")
+}
+function renderSummary(){
+ const ps=state.slots.map(x=>x.player),avg=Math.round(ps.reduce((a,p)=>a+p.ovr,0)/ps.length);
+ const by=r=>{const a=ps.filter(p=>p.role===r);return a.length?Math.round(a.reduce((s,p)=>s+p.ovr,0)/a.length):0};
+ $("#summaryStats").innerHTML=[["OVR",avg],["DIF",by("DIF")],["CEN",by("CEN")],["ATT",by("ATT")],["POR",by("POR")]].map(x=>`<div class="stat"><b>${state.difficulty==="hard"&&x[0]==="OVR"?"?":x[1]}</b><span>${x[0]}</span></div>`).join("");
+ $("#teamList").innerHTML=ps.map(p=>`<div class="team-row"><div><b>${p.name}</b><small> ${p.team} · ${p.edition}</small></div><b>${p.role}</b></div>`).join("");show("complete")
+}
+function initSeason(){
+ state.speed=$("#speed").value;state.teamName=$("#userTeamName").value.trim()||"La tua squadra";state.matchday=0;
+ const teams=[{name:state.teamName,strength:teamStrength(),user:true},...DB.opponents];
+ state.standings=teams.map(t=>({...t,p:0,w:0,l:0,gf:0,ga:0,pts:0}));
+ state.schedule=DB.opponents.map(o=>o.name).sort(()=>Math.random()-.5);renderSeason()
+}
+function teamStrength(){const p=state.slots.map(x=>x.player);return Math.round(p.reduce((s,x)=>s+x.ovr,0)/p.length)}
+function renderSeason(){
+ if(state.matchday>=11){startPlayoffs();return}
+ $("#matchdayTitle").textContent=`GIORNATA ${state.matchday+1}`;
+ const opp=state.schedule[state.matchday];$("#nextMatchCard").innerHTML=`<div class="versus">${state.teamName}</div><h2>VS</h2><div class="versus">${opp}</div>`;
+ renderStandings();show("season")
+}
+function sortedTable(){return [...state.standings].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf)}
+function renderStandings(){
+ $("#standingsBody").innerHTML=sortedTable().map((t,i)=>`<tr class="${t.user?"user":""}"><td>${i+1}</td><td>${t.name}</td><td>${t.p}</td><td>${t.w}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gf-t.ga}</td><td>${t.pts}</td></tr>`).join("")
+}
+function playMatch(){
+ const opp=state.schedule[state.matchday],op=state.standings.find(t=>t.name===opp);
+ state.live={opp,home:0,away:0,minute:0,events:[],paused:false,finished:false,scorers:[],shots:[0,0],saves:[0,0],possession:[50,50],timer:null,oppStrength:op.strength};
+ $("#liveDay").textContent=`GIORNATA ${state.matchday+1}`;$("#liveTeams").innerHTML=`<b>${state.teamName}</b> <span class="muted">vs</span> <b>${opp}</b>`;$("#eventFeed").innerHTML="";updateLive();show("live");scheduleNext()
+}
+function delay(){return {slow:1700,normal:850,fast:280}[state.speed]}
+function addEvent(text,cls=""){state.live.events.push(text);$("#eventFeed").insertAdjacentHTML("beforeend",`<div class="event ${cls}">${text}</div>`);$("#eventFeed").scrollTop=$("#eventFeed").scrollHeight}
+function scheduleNext(){clearTimeout(state.live.timer);if(!state.live.paused&&!state.live.finished)state.live.timer=setTimeout(stepMatch,delay())}
+function phaseEvent(m){
+ const map={0:["0' 🟢 <strong>Inizio Escalado: 1vs1</strong>","special"],1:["1' 🔼 Escalado: 2vs2","special"],2:["2' 🔼 Escalado: 3vs3","special"],3:["3' 🔼 Escalado: 4vs4","special"],4:["4' 🔼 Escalado: 5vs5","special"],5:["5' ✅ Escalado completato: 6vs6","special"],17:["17' ⭐ <strong>Goal x2 attivo</strong>","special"],20:["20' 🎲 <strong>Fase del dado</strong>","special"],23:["23' 🔁 Fine fase del dado, si torna 6vs6","special"],36:["36' 🔻 <strong>Inizio Descalado / Matchball</strong>","danger-event"],40:["40' 🏁 Fischio finale","special"]};return map[m]
+}
+function stepMatch(){
+ const L=state.live,m=L.minute,phase=phaseEvent(m);if(phase)addEvent(...phase);
+ let chance=.19;if(m<6)chance=.28;if(m>=20&&m<23)chance=.34;if(m>=36)chance=.3;
+ if(Math.random()<chance&&m>0&&m<40){
+  const userProb=teamStrength()/(teamStrength()+L.oppStrength);const user=Math.random()<userProb;
+  L.shots[user?0:1]++;
+  if(Math.random()<.42){
+   let value=(m>=17&&m<20)?2:1;if(user)L.home+=value;else L.away+=value;
+   const scorer=user?random(state.slots.filter(x=>x.player.role!=="POR").map(x=>x.player)).name:random(["attaccante","numero 10","giocatore avversario"]);
+   L.scorers.push({minute:m,name:scorer,user,value});addEvent(`${m}' ⚽ <strong>GOOOL${value===2?" x2":""}!</strong> ${scorer} · ${L.home}-${L.away}`,"goal")
+  }else{L.saves[user?1:0]++;addEvent(`${m}' 🧤 Grande parata ${user?"avversaria":"del tuo portiere"}`)}
+ }else if(Math.random()<.14&&m>5&&m<40)addEvent(`${m}' ⚠️ Occasione per ${Math.random()<.5?state.teamName:L.opp}`)
+ L.minute++;updateLive();
+ if(L.minute>40){finishMatch();return}scheduleNext()
+}
+function updateLive(){$("#liveScore").textContent=`${state.live.home} - ${state.live.away}`;$("#liveClock").textContent=`${Math.min(state.live.minute,40)}'`}
+function finishMatch(){
+ const L=state.live;L.finished=true;clearTimeout(L.timer);applyResult(state.teamName,L.opp,L.home,L.away);
+ simulateOthers();$("#finalScore").textContent=`${state.teamName} ${L.home}-${L.away} ${L.opp}`;
+ const poss=Math.max(38,Math.min(62,50+(teamStrength()-L.oppStrength)/2+Math.round(Math.random()*8-4)));L.possession=[poss,100-poss];
+ $("#resultStats").innerHTML=[["Tiri",`${L.shots[0]}-${L.shots[1]}`],["Possesso",`${poss}%-${100-poss}%`],["Parate",`${L.saves[0]}-${L.saves[1]}`],["MVP",mvpName()]].map(x=>`<div class="result-box"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("");
+ $("#scorers").innerHTML=L.scorers.length?L.scorers.map(s=>`<div class="team-row"><b>${s.minute}' ${s.name}${s.value===2?" (x2)":""}</b><small>${s.user?state.teamName:L.opp}</small></div>`).join(""):`<div class="team-row"><b>Nessun gol</b></div>`;show("result")
+}
+function mvpName(){const own=state.live.scorers.filter(s=>s.user);return own.length?own[own.length-1].name:random(state.slots.map(x=>x.player)).name}
+function applyResult(a,b,ga,gb){const A=state.standings.find(t=>t.name===a),B=state.standings.find(t=>t.name===b);A.p++;B.p++;A.gf+=ga;A.ga+=gb;B.gf+=gb;B.ga+=ga;if(ga>gb){A.w++;B.l++;A.pts+=3}else if(gb>ga){B.w++;A.l++;B.pts+=3}else{A.pts++;B.pts++}}
+function simulateOthers(){
+ const unused=DB.opponents.map(x=>x.name).filter(n=>n!==state.live.opp).sort(()=>Math.random()-.5);
+ while(unused.length>1){const a=unused.pop(),b=unused.pop(),sa=state.standings.find(t=>t.name===a).strength,sb=state.standings.find(t=>t.name===b).strength;let ga=Math.max(0,Math.round((sa-68)/8+Math.random()*3)),gb=Math.max(0,Math.round((sb-68)/8+Math.random()*3));applyResult(a,b,ga,gb)}
+}
+function continueSeason(){state.matchday++;renderSeason()}
+function startPlayoffs(){state.playoffStage=0;renderPlayoff();show("playoffs")}
+function renderPlayoff(){
+ const rank=sortedTable().findIndex(t=>t.user)+1,stages=["PLAY-IN","QUARTI DI FINALE","SEMIFINALE","FINALE"],title=stages[state.playoffStage];
+ $("#playoffTitle").textContent=title;
+ if(rank>10&&state.playoffStage===0){$("#playoffContent").innerHTML=`<div class="champion"><h2>STAGIONE TERMINATA</h2><p>Hai chiuso al ${rank}° posto.</p></div>`;$("#playoffNext").textContent="NUOVO DRAFT";state.playoffStage=99;return}
+ const opp=random(DB.opponents).name,win=Math.random()<(teamStrength()/(teamStrength()+DB.opponents.find(x=>x.name===opp).strength));
+ const us=Math.floor(Math.random()*4)+2,them=win?Math.max(0,us-1):us+1;
+ $("#playoffContent").innerHTML=`<div class="match-row"><div>${state.teamName} <b>${win?us:them}</b></div><div>${opp} <b>${win?them:us}</b></div></div>${win&&state.playoffStage===3?`<div class="champion"><h2>🏆 CAMPIONE!</h2><p>Hai vinto la Kings Draft Italia.</p></div>`:""}`;
+ state.lastPlayoffWin=win;$("#playoffNext").textContent=(win&&state.playoffStage<3)?"CONTINUA":"NUOVO DRAFT"
+}
+function nextPlayoff(){
+ if(state.playoffStage===99||!state.lastPlayoffWin||state.playoffStage===3){location.reload();return}
+ state.playoffStage++;renderPlayoff()
+}
+$$("[data-mode]").forEach(b=>b.onclick=()=>{$$("[data-mode]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");state.difficulty=b.dataset.mode});
+$$("[data-formation]").forEach(b=>b.onclick=()=>{$$("[data-formation]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");state.formation=b.dataset.formation});
+$("#start").onclick=startDraft;$("#homeBack").onclick=()=>show("home");$("#restart").onclick=startDraft;$("#drawBack").onclick=()=>show("draft");$("#playersBack").onclick=()=>show("draw");
+$("#skipTeam").onclick=()=>changeDraw("team");$("#skipEdition").onclick=()=>changeDraw("edition");$("#showPlayers").onclick=showPlayers;$("#startSeason").onclick=initSeason;$("#playMatch").onclick=playMatch;
+$("#togglePause").onclick=()=>{state.live.paused=!state.live.paused;$("#togglePause").textContent=state.live.paused?"RIPRENDI":"PAUSA";if(!state.live.paused)scheduleNext()};
+$("#skipLive").onclick=()=>{while(state.live.minute<=40&&!state.live.finished)stepMatch()};$("#continueSeason").onclick=continueSeason;$("#playoffNext").onclick=nextPlayoff;
+</script>
+</body>
+</html>
