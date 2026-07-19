@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090f">
+<title>Kings Draft Italia v0.8.5</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+<section class="screen active" id="home">
+  <div class="hero">
+    <span class="tag">V0.8.5 · GAMEPLAY UPDATE</span>
+    <h1>KINGS<br>DRAFT ITALIA</h1>
+    <p>Draft dello Split 2, Regular Season e playoff.</p>
+  </div>
+  <div class="panel">
+    <div class="section-title-row"><h3>Difficoltà</h3><button class="info-toggle" id="difficultyInfoToggle" type="button" aria-expanded="false" aria-controls="difficultyInfo">ⓘ Informazioni</button></div>
+    <div class="choice-grid" id="difficulty">
+      <button data-value="easy">Facile<small>Tutti i giocatori</small></button>
+      <button class="selected" data-value="normal">Normale<small>4 o 5 giocatori</small></button>
+      <button data-value="hard">Difficile<small>3 giocatori</small></button>
+    </div>
+    <div class="info-dropdown hidden" id="difficultyInfo">
+      <div><b>🟢 Facile</b><p>Mostra tutti i giocatori disponibili del ruolo. Ideale per costruire la squadra migliore.</p></div>
+      <div><b>🟡 Normale</b><p>Mostra casualmente 4 o 5 giocatori. Richiede maggiore strategia.</p></div>
+      <div><b>🔴 Difficile</b><p>Mostra solamente 3 giocatori. Ogni scelta diventa più impegnativa.</p></div>
+      <div><b>🔄 Respin</b><p>Hai un solo Respin per tutto il Draft. Puoi usarlo per rigenerare i giocatori della scelta corrente; dopo l'utilizzo non sarà più disponibile.</p></div>
+      <p class="info-note">💡 La difficoltà modifica soltanto il Draft. Le partite seguono le stesse regole a ogni livello.</p>
+    </div>
+    <h3>Formazione</h3>
+    <div class="choice-grid" id="formation">
+      <button class="selected" data-value="2-2-2">2-2-2</button>
+      <button data-value="3-1-2">3-1-2</button>
+      <button data-value="2-1-3">2-1-3</button>
+    </div>
+    <button class="primary" id="startDraft">Inizia il draft</button>
+  </div>
+</section>
+
+<section class="screen" id="draft">
+  <header><button class="back" data-go="home">‹</button><div><small>FORMAZIONE</small><b id="formationText"></b></div><span class="badge">RESPIN <b id="skipText"></b></span></header>
+  <div id="pitch" class="pitch"></div>
+  <p class="center muted">Tocca una posizione vuota.</p>
+</section>
+
+<section class="screen" id="draw">
+  <header><button class="back" data-go="draft">‹</button><div><small>POSIZIONE</small><b id="drawRole"></b></div><span class="badge">RESPIN <b class="skipMirror"></b></span></header>
+  <div class="panel draw-panel">
+    <span class="tag">SORTEGGIO</span>
+    <div class="draw-grid">
+      <div><small>SQUADRA</small><strong id="drawTeam"></strong></div>
+    </div>
+    <p class="warning">La squadra estratta resta valida per questa scelta. Database dedicato esclusivamente allo Split 2.</p>
+    <button class="primary" id="openPlayers">Vedi giocatori</button>
+  </div>
+</section>
+
+<section class="screen" id="players">
+  <header><button class="back" data-go="draw">‹</button><div><small id="playersContext"></small><b id="playersRole"></b></div><span class="badge">RESPIN <b class="skipMirror"></b></span></header>
+  <div class="players-toolbar"><p id="playersCount" class="muted"></p><button class="secondary respin-button" id="respinPlayers">🔄 Respin (<span class="skipMirror"></span>)</button></div>
+  <div id="playerGrid" class="player-grid"></div>
+</section>
+
+<section class="screen" id="summary">
+  <div class="panel wide">
+    <span class="tag">DRAFT COMPLETATO</span><h2>La tua rosa</h2>
+    <div id="teamStats" class="stats-grid"></div>
+    <div id="squadList"></div>
+    <label>Nome squadra<input id="teamName" value="La tua squadra"></label>
+    <label>Velocità iniziale<select id="preSpeed"><option value="slow">Lenta</option><option value="normal" selected>Normale</option><option value="fast">Veloce</option></select></label>
+    <button class="primary" id="startSeason">Inizia la Regular Season</button>
+  </div>
+</section>
+
+<section class="screen" id="season">
+  <div class="panel wide">
+    <span class="tag">REGULAR SEASON · SPLIT 2</span><h2 id="roundTitle"></h2>
+    <div id="nextMatch" class="versus"></div>
+    <div class="two">
+      <button class="primary no-margin" id="playMatch">Gioca partita</button>
+      <button class="secondary" id="simRound">Simula giornata</button>
+    </div>
+    <button class="danger" id="simAll">Simula tutta la Regular Season</button>
+    <div class="table-wrap"><table><thead><tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>GF</th><th>GS</th><th>DR</th><th>PT</th></tr></thead><tbody id="tableBody"></tbody></table></div>
+  </div>
+</section>
+
+<section class="screen" id="recap">
+  <div class="panel wide">
+    <span class="tag">FINE REGULAR SEASON · SPLIT 2</span>
+    <h2>Classifica finale</h2>
+    <div id="recapSummary" class="stats-grid"></div>
+    <div class="table-wrap"><table><thead><tr><th>#</th><th>Squadra</th><th>G</th><th>V</th><th>P</th><th>GF</th><th>GS</th><th>DR</th><th>PT</th></tr></thead><tbody id="recapTableBody"></tbody></table></div>
+    <button class="primary" id="startPlayoffs">Vai alla fase finale</button>
+  </div>
+</section>
+
+<section class="screen" id="live">
+  <div class="panel wide">
+    <span class="tag" id="liveRound"></span>
+    <div class="live-head"><b id="liveTeams"></b><div id="score">0 - 0</div><small id="clock">0'</small></div>
+    <div class="phasebar"><span id="phaseFill"></span></div>
+    <div class="live-settings">
+      <label>Velocità<select id="liveSpeed"><option value="slow">Lenta</option><option value="normal">Normale</option><option value="fast">Veloce</option></select></label>
+    </div>
+    <div id="feed" class="feed"></div>
+    <div class="two"><button class="secondary" id="pause">Pausa</button><button class="secondary" id="skipMatch">Salta partita</button></div>
+  </div>
+</section>
+
+<section class="screen" id="result">
+  <div class="panel wide">
+    <span class="tag">FINE PARTITA</span><h2 id="finalResult"></h2>
+    <div id="matchStats" class="stats-grid"></div><div id="goalList"></div>
+    <button class="primary" id="continue">Continua</button>
+  </div>
+</section>
+
+<section class="screen" id="playoffs">
+  <div class="panel wide">
+    <span class="tag">FASE FINALE · SPLIT 2</span>
+    <h2 id="playoffTitle"></h2>
+    <div id="playoffBody"></div>
+    <button class="primary" id="playoffNext">Gioca partita</button>
+  </div>
+</section>
+  <footer class="app-footer">Kings Draft Italia v0.8.5 · Gameplay Refinement Update</footer>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
